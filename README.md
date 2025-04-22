@@ -2,7 +2,6 @@
 
 > ⚠️ **Este projeto ainda está em desenvolvimento.**
 
-Um assistente financeiro virtual com IA, integrado ao WhatsApp, para ajudar na organização das suas finanças de forma prática e inteligente.
 
 ## 💡 Visão Geral
 
