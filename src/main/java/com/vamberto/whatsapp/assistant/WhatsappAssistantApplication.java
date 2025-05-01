@@ -8,6 +8,10 @@ public class WhatsappAssistantApplication {
 
 	public static void main(String[] args) {
 		SpringApplication.run(WhatsappAssistantApplication.class, args);
+
+//		IA.api();
+
+
 	}
 
 }
