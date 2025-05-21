@@ -1,0 +1,25 @@
+spring:
+  application:
+    name: whatsapp-assistant
+
+  datasource:
+    url: ${DB_URL}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+    driver-class-name: org.postgresql.Driver
+    hikari:
+      cachePrepStmts: true
+      maximum-pool-size: 10
+
+  jpa:
+    hibernate:
+      ddl-auto: update  # ou validate, create, etc.
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+    show-sql: true  # (opcional) mostra as queries no console
+
+logging:
+  level:
+    org.hibernate.SQL: DEBUG
+    org.hibernate.type.descriptor.sql.BasicBinder: TRACE
