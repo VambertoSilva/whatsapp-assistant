@@ -7,6 +7,7 @@ import org.springframework.cglib.core.Local;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.util.Map;
 
 @Service
 @Data
@@ -14,13 +15,13 @@ import java.time.LocalDate;
 public class MessageProcessorService {
 
     private final WhatsappAPI whatsappAPI;
-    String template = "Você é um assistente financeiro. A cada mensagem do usuário, identifique a intenção principal (como \"registrar_gasto\", \"consultar_saldo\", \"dica_financeira\", \"adicionar_saldo\",) e os dados extraídos. Retorne a resposta em JSON no formato:\n" +
+    String template = "Você é um assistente financeiro. A cada mensagem do usuário, identifique a intenção principal (como \"spent\", \"balance\", \"dica_financeira\", \"earn\",) e os dados extraídos, caso não tenha informação de categoria, coloque 'Não definido'. Retorne a resposta em JSON no formato:\n" +
             "{\n" +
-            "  \"intencao\": \"...\",\n" +
-            "  \"dados\": {\n" +
-            "    \"valor\": ,\n" +
-            "    \"categoria\": ,\n" +
-            "    \"data\": \"YYYY-MM-DD\"\n" +
+            "  \"intention\": \"...\",\n" +
+            "  \"data\": {\n" +
+            "    \"amount\": ,\n" +
+            "    \"category\": ,\n" +
+            "    \"date\": \"YYYY-MM-DD\"\n" +
             "  }\n" +
             "}\n" +
             "A data deve estar sempre no formato numérico (YYYY-MM-DD). Se o usuário disser \"hoje\", \"ontem\" ou \"dia 10\", converta essas expressões para a data correspondente, usando a data de hoje como referência.\n" +
@@ -32,6 +33,8 @@ public class MessageProcessorService {
             "\n" +
             "Não explique nem converse, apenas retorne o JSON.\n";
 
+    String templateTwo = "*Despesa Adicionada*\n Valor: {{amount}}\n Categoria: {{Category}}\n Data: {{date}} ";
+
         String dateNow = LocalDate.now().toString();
 
 
@@ -40,13 +43,25 @@ public class MessageProcessorService {
 
         String fullPrompt = template.replace("{{mensagem_usuario}}",message).replace("{{data_atual}}", dateNow);
 
-        String iaResponse = IaService.api(fullPrompt);
-        //System.out.println("🤖 Resposta da IA: " + iaResponse);
+        Map<String, Object> iaResponse = IaService.api(fullPrompt);
+        System.out.println("🤖 Resposta da IA: " + iaResponse);System.out.println("🤖 Resposta da IA2: " + iaResponse.get("intention"));
 
-        whatsappAPI.sendMessage(from, iaResponse).subscribe(
+        if("spent".equals(iaResponse.get("intention").toString())){
+
+
+            Map<String, Object> data =  (Map<String, Object>) iaResponse.get("data");
+
+            String fullResponse = templateTwo
+                    .replace("{{amount}}", data.get("amount").toString())
+                    .replace("{{Category}}", data.get("category").toString())
+                    .replace("{{date}}", data.get("date").toString());
+
+            whatsappAPI.sendMessage(from, fullResponse ).subscribe(
                 result -> System.out.println("✅ Mensagem enviada: "),
                 error -> System.err.println("❌ Erro ao enviar: ")
         );
+        }
+
 
     }
 }
